@@ -103,23 +103,24 @@ ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_
     return result;
 }
 
-ZOPT_KIND zopt_get(ZOPT_OPTS opts, const char *name, char *value_out, int value_out_size) {
+const ZOPT_VAL *zopt_get(ZOPT_OPTS opts, const char *name) {
     for (int i = 0; i < opts.count; ++i) {
-        ZOPT_VAL *opt = &opts.opts[i];
+        const ZOPT_VAL *opt = &opts.opts[i];
         if (!strcmp(opt->name, name)) {
-            strncpy(value_out, opt->value, value_out_size);
-            return opt->kind;
+            return opt;
         }
     }
-    strncpy(value_out, "", value_out_size);
-    return ZOPT_NOTPRESENT;
+    return NULL;
+}
+
+const char *zopt_get_str(ZOPT_OPTS opts, const char *name) {
+    const ZOPT_VAL *opt = zopt_get(opts, name);
+    if (opt) return opt->value;
+    else return NULL;
 }
 
 char zopt_get_bool(ZOPT_OPTS opts, const char *name, char default_val) {
-    for (int i = 0; i < opts.count; ++i) {
-        if (!strcmp(opts.opts[i].name, name)) {
-            return TRUE;
-        }
-    }
-    return default_val;
+    const ZOPT_VAL *opt = zopt_get(opts, name);
+    if (opt) return TRUE;
+    else return default_val;
 }

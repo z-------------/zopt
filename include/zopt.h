@@ -1,5 +1,5 @@
 typedef enum ZOPT_KIND {
-    ZOPT_NOTPRESENT = 0, // returned by zopt_get if the specified option is not present
+    ZOPT_NOTPRESENT = 0,
     ZOPT_BOOL   = 1<<0,
     ZOPT_STR    = 1<<1
 } ZOPT_KIND;
@@ -35,16 +35,24 @@ typedef struct ZOPT_OPTS {
 ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count);
 
 /*
- * Get the value and kind of a specified option.
+ * Get a specified option.
  * 
  * opts - The options container.
  * name - The name of the option whose value to get.
- * value_out - The address of the buffer to which to write the option's value.
- * value_out_size - The size of the buffer.
  * 
- * Returns the kind of the specified option, or ZOPT_NOTPRESENT if it is not present.
+ * Returns a pointer to the specified option.
  */
-ZOPT_KIND zopt_get(ZOPT_OPTS opts, const char *name, char *value_out, int value_out_size);
+const ZOPT_VAL *zopt_get(ZOPT_OPTS opts, const char *name);
+
+/*
+ * Get the value a specified string option.
+ * 
+ * opts - The options container.
+ * name - The name of the option whose value to get.
+ * 
+ * Returns a pointer to the string value of the specified option.
+ */
+const char *zopt_get_str(ZOPT_OPTS opts, const char *name);
 
 /*
  * Get the value of a specified boolean option.
@@ -53,6 +61,6 @@ ZOPT_KIND zopt_get(ZOPT_OPTS opts, const char *name, char *value_out, int value_
  * name - The name of the option whose value to get.
  * default_val - The value to return if the specified option is not present.
  * 
- * Returns the value of the specified option, or default_val if it is not present.
+ * Returns the boolean value of the specified option, or default_val if it is not present.
  */
 char zopt_get_bool(ZOPT_OPTS opts, const char *name, char default_val);

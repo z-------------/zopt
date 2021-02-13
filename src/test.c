@@ -41,21 +41,10 @@ int main() {
     CHECK_EQ(zopt_get_bool(opts, "x", 0), 0);
     CHECK_EQ(zopt_get_bool(opts, "x", 1), 1);
 
-    char u_val[128];
-    CHECK_EQ(zopt_get(opts, "u", u_val, sizeof(u_val)), ZOPT_STR);
-    CHECK_STR_EQ(u_val, "alice");
-
-    char foo_val[128];
-    CHECK_EQ(zopt_get(opts, "foo", foo_val, sizeof(foo_val)), ZOPT_STR);
-    CHECK_STR_EQ(foo_val, "bar");
-
-    char bar_val[128];
-    CHECK_EQ(zopt_get(opts, "bar", bar_val, sizeof(bar_val)), ZOPT_STR);
-    CHECK_STR_EQ(bar_val, "BAR!");
-
-    char nonexistent_val[128];
-    CHECK_EQ(zopt_get(opts, "NONEXISTENT", nonexistent_val, sizeof(nonexistent_val)), ZOPT_NOTPRESENT);
-    CHECK_STR_EQ(nonexistent_val, "");
+    CHECK_STR_EQ(zopt_get_str(opts, "u"), "alice");
+    CHECK_STR_EQ(zopt_get_str(opts, "foo"), "bar");
+    CHECK_STR_EQ(zopt_get_str(opts, "bar"), "BAR!");
+    CHECK_EQ(zopt_get_str(opts, "NONEXISTENT"), NULL);
 
     CHECK_STR_EQ(opts.args[0], "foo");
     CHECK_STR_EQ(opts.args[1], "bar");
