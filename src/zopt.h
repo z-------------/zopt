@@ -18,6 +18,8 @@ typedef struct ZOPT_VAL {
 typedef struct ZOPT_OPTS {
     ZOPT_VAL *opts;
     int count;
+    const char **args;
+    int args_count;
 } ZOPT_OPTS;
 
 ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count);

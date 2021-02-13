@@ -30,28 +30,38 @@ ZOPT_DEF *find_def(ZOPT_DEF opt_defs[], int opt_defs_count, const char *name) {
 
 ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count) {
     ZOPT_OPTS result;
+    result.opts = NULL;
     result.count = 0;
-    result.opts = 0;
+    result.args = NULL;
+    result.args_count = 0;
 
     BOOL is_waiting_for_val = 0;
     ZOPT_DEF *cur_def;
     for (int i = 1; i < argc; ++i) {
         if (is_waiting_for_val) {
             result.opts = add_opt(result.opts, result.count++, cur_def, argv[i]);
-        } else {
-            if (argv[i][0] != '-') continue;
-            const char *cur_opt_name = &argv[i][1];
-            cur_def = find_def(opt_defs, opt_defs_count, cur_opt_name);
-            if (!cur_def) {
-                fprintf(stderr, "Unknown option '%s'\n", cur_opt_name);
-                continue;
-            }
-            switch (cur_def->kind) {
-                case ZOPT_BOOL:
-                    result.opts = add_opt(result.opts, result.count++, cur_def, ""); break;
-                case ZOPT_STR:
-                    is_waiting_for_val = TRUE;
-            }
+            is_waiting_for_val = FALSE;
+            continue;
+        }
+        
+        if (argv[i][0] != '-') {
+            ++result.args_count;
+            result.args = (const char **)realloc(result.args, result.args_count * sizeof(const char *));
+            result.args[result.args_count - 1] = argv[i];
+            continue;
+        }
+
+        const char *cur_opt_name = &argv[i][1];
+        cur_def = find_def(opt_defs, opt_defs_count, cur_opt_name);
+        if (!cur_def) {
+            fprintf(stderr, "Unknown option '%s'\n", cur_opt_name);
+            continue;
+        }
+        switch (cur_def->kind) {
+            case ZOPT_BOOL:
+                result.opts = add_opt(result.opts, result.count++, cur_def, ""); break;
+            case ZOPT_STR:
+                is_waiting_for_val = TRUE;
         }
     }
     
@@ -87,12 +97,14 @@ int main(int argc, const char *argv[]) {
         { .name = "u", .kind = ZOPT_STR }
     };
     ZOPT_OPTS opts = zopt_parse(argc, argv, opt_defs, sizeof(opt_defs) / sizeof(ZOPT_DEF));
-    printf("parsed %d opts.\n", opts.count);
+    printf("parsed %d opts and %d args\n", opts.count, opts.args_count);
 
     printf("-m = %d\n", zopt_get_bool(opts, "m", FALSE));
     printf("-p = %d\n", zopt_get_bool(opts, "p", FALSE));
-
-    char u_val[128];
-    zopt_get(opts, "u", u_val, sizeof(u_val));
+    char u_val[128]; zopt_get(opts, "u", u_val, sizeof(u_val));
     printf("-u = \"%s\"\n", u_val);
+
+    for (int i = 0; i < opts.args_count; ++i) {
+        printf("arg: \"%s\"\n", opts.args[i]);
+    }
 }
