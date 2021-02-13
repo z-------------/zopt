@@ -28,19 +28,23 @@ ZOPT_DEF *find_def(ZOPT_DEF opt_defs[], int opt_defs_count, const char *name) {
     return 0;
 }
 
-void _zopt_parse_handle_opt(ZOPT_OPTS *result, ZOPT_DEF opt_defs[], int opt_defs_count, const char *cur_opt_name, BOOL *is_waiting_for_val, ZOPT_DEF **cur_def) {
+void _zopt_parse_handle_opt(ZOPT_OPTS *result, const char *value, ZOPT_DEF opt_defs[], int opt_defs_count, const char *cur_opt_name, BOOL *is_waiting_for_val, ZOPT_DEF **cur_def) {
     *cur_def = find_def(opt_defs, opt_defs_count, cur_opt_name);
     if (!*cur_def) {
         fprintf(stderr, "Unknown option '%s'\n", cur_opt_name);
         return;
     }
+    *is_waiting_for_val = FALSE;
     switch ((*cur_def)->kind) {
         case ZOPT_BOOL:
-            *is_waiting_for_val = FALSE;
             result->opts = add_opt(result->opts, result->count++, *cur_def, "");
             break;
         case ZOPT_STR:
-            *is_waiting_for_val = TRUE;
+            if (value) {
+                result->opts = add_opt(result->opts, result->count++, *cur_def, value);
+            } else {
+                *is_waiting_for_val = TRUE;
+            }
             break;
     }
 }
@@ -73,14 +77,25 @@ ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_
         BOOL is_long_opt = argv[i][1] == '-'; // whole thing starts with '--'
         if (is_long_opt) {
             cur_opt_name = &argv[i][2];
-            _zopt_parse_handle_opt(&result, opt_defs, opt_defs_count, cur_opt_name, &is_waiting_for_val, &cur_def);
+            char *value = NULL;
+            char *eq_sign;
+            if (eq_sign = strchr(argv[i], '=')) {
+                value = eq_sign + 1;
+
+                int opt_name_size = eq_sign - cur_opt_name + 1;
+                char *opt_name = (char *)malloc(opt_name_size * sizeof(char));
+                strncpy(opt_name, cur_opt_name, opt_name_size);
+                opt_name[opt_name_size-1] = 0;
+                cur_opt_name = opt_name;
+            }
+            _zopt_parse_handle_opt(&result, value, opt_defs, opt_defs_count, cur_opt_name, &is_waiting_for_val, &cur_def);
         } else {
             for (int j = 1; j < len; ++j) {
                 char opt_name[2];
                 opt_name[0] = argv[i][j];
                 opt_name[1] = 0;
                 cur_opt_name = opt_name;
-                _zopt_parse_handle_opt(&result, opt_defs, opt_defs_count, cur_opt_name, &is_waiting_for_val, &cur_def);
+                _zopt_parse_handle_opt(&result, NULL, opt_defs, opt_defs_count, cur_opt_name, &is_waiting_for_val, &cur_def);
             }
         }
     }
