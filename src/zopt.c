@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "zopt.h"
+#include "../include/zopt.h"
 
 typedef char BOOL;
 
