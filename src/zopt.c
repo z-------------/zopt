@@ -31,13 +31,13 @@ ZOPT_DEF *find_def(ZOPT_DEF opt_defs[], int opt_defs_count, const char *name) {
 ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count) {
     ZOPT_OPTS result;
     result.count = 0;
+    result.opts = 0;
 
-    ZOPT_VAL *opts = 0;
     BOOL is_waiting_for_val = 0;
     ZOPT_DEF *cur_def;
     for (int i = 1; i < argc; ++i) {
         if (is_waiting_for_val) {
-            opts = add_opt(opts, result.count++, cur_def, argv[i]);
+            result.opts = add_opt(result.opts, result.count++, cur_def, argv[i]);
         } else {
             if (argv[i][0] != '-') continue;
             const char *cur_opt_name = &argv[i][1];
@@ -48,14 +48,13 @@ ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_
             }
             switch (cur_def->kind) {
                 case ZOPT_BOOL:
-                    opts = add_opt(opts, result.count++, cur_def, ""); break;
+                    result.opts = add_opt(result.opts, result.count++, cur_def, ""); break;
                 case ZOPT_STR:
                     is_waiting_for_val = TRUE;
             }
         }
     }
     
-    result.opts = opts;
     return result;
 }
 
