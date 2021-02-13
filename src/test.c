@@ -3,10 +3,12 @@
 #include <string.h>
 #include "../include/zopt.h"
 
+#define _CHECK(condition, actual, expected, format_str) \
+    if (!(condition)) { fprintf(stderr, "Check failed: "); fprintf(stderr, format_str, #actual, actual, expected); fprintf(stderr, "\n"); exit(1); }
 #define CHECK_EQ(actual, expected) \
-    if (actual != expected) { fprintf(stderr, "Check failed: %s is %d, expected %d.\n", #actual, actual, expected); exit(1); }
+    _CHECK(actual == expected, actual, expected, "%s is %d, expected %d.")
 #define CHECK_STR_EQ(actual, expected) \
-    if (strcmp(actual, expected)) { fprintf(stderr, "Check failed: %s is \"%s\", expected \"%s\".\n", #actual, actual, expected); exit(1); }
+    _CHECK(!strcmp(actual, expected), actual, expected, "%s is \"%s\", expected \"%s\".")
 
 int main() {
     const char *argv[] = { "_", "foo", "-mu", "alice", "-p", "bar", "--foo=bar", "baz", "-abc", "qux", "--bar", "BAR!", "quux", "quuux" };
