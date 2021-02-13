@@ -1,16 +1,19 @@
 CC=gcc
 SRC=src
 OUT=build
+TEST=test
 
-.PHONY: all clean
+.PHONY: default clean test
 
-all: $(OUT)/zopt
+default: $(OUT)/zopt.o
 
-clean:
-	rm build/*
-
-$(OUT)/zopt: $(OUT)/zopt.o
-	$(CC) -o $@ $^
+$(OUT)/test: $(OUT)/test.o $(OUT)/zopt.o
 
 $(OUT)/%.o: $(SRC)/%.c
 	$(CC) -c -o $@ $^
+
+test: $(OUT)/test
+	$(OUT)/test
+
+clean:
+	rm build/*

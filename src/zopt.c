@@ -123,29 +123,3 @@ char zopt_get_bool(ZOPT_OPTS opts, const char *name, char default_val) {
     }
     return default_val;
 }
-
-/* main */
-
-int main(int argc, const char *argv[]) {
-    ZOPT_DEF opt_defs[] = {
-        { .name = "m", .kind = ZOPT_BOOL },
-        { .name = "p", .kind = ZOPT_BOOL },
-        { .name = "u", .kind = ZOPT_STR },
-        { .name = "foo", .kind = ZOPT_STR }
-    };
-    ZOPT_OPTS opts = zopt_parse(argc, argv, opt_defs, sizeof(opt_defs) / sizeof(ZOPT_DEF));
-    printf("parsed %d opts and %d args\n", opts.count, opts.args_count);
-
-    printf("-m = %d\n", zopt_get_bool(opts, "m", FALSE));
-    printf("-p = %d\n", zopt_get_bool(opts, "p", FALSE));
-    char u_val[128];
-    if (zopt_get(opts, "u", u_val, sizeof(u_val)))
-        printf("-u = \"%s\"\n", u_val);
-    char foo_val[128];
-    if (zopt_get(opts, "foo", foo_val, sizeof(foo_val)))
-        printf("--foo = \"%s\"\n", foo_val);
-
-    for (int i = 0; i < opts.args_count; ++i) {
-        printf("arg: \"%s\"\n", opts.args[i]);
-    }
-}
