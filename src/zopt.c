@@ -96,7 +96,7 @@ ZOPT_KIND zopt_get(ZOPT_OPTS opts, const char *name, char *value_out, int value_
             return opt->kind;
         }
     }
-    strcpy(value_out, "");
+    strncpy(value_out, "", value_out_size);
     return ZOPT_NOTPRESENT;
 }
 
