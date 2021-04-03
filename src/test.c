@@ -10,7 +10,7 @@
 #define CHECK_STR_EQ(actual, expected) \
     _CHECK(!strcmp(actual, expected), actual, expected, "%s is \"%s\", expected \"%s\".")
 
-int main() {
+void test_normal() {
     const char *argv[] = { "_", "foo", "-mu", "alice", "-p", "bar", "--foo=bar", "baz", "-abc", "qux", "--bar", "BAR!", "quux", "quuux" };
     int argc = sizeof(argv) / sizeof(const char *);
 
@@ -54,4 +54,26 @@ int main() {
     CHECK_STR_EQ(opts.args[3], "qux");
     CHECK_STR_EQ(opts.args[4], "quux");
     CHECK_STR_EQ(opts.args[5], "quuux");
+}
+
+void test_invalid() {
+    const char *argv[] = { "_", "-a", "-c", "-m" };
+    int argc = sizeof(argv) / sizeof(const char *);
+
+    ZOPT_DEF opt_defs[] = {
+        { .name = "a", .kind = ZOPT_BOOL },
+        { .name = "c", .kind = ZOPT_BOOL },
+        { .name = "m", .kind = ZOPT_STR },
+    };
+    ZOPT_OPTS opts = zopt_parse(argc, argv, opt_defs, sizeof(opt_defs) / sizeof(ZOPT_DEF));
+
+    CHECK_EQ(opts.count, 2);
+    CHECK_EQ(opts.args_count, 0);
+
+    CHECK_EQ(zopt_get_str(opts, "m"), NULL);
+}
+
+int main() {
+    test_normal();
+    test_invalid();
 }
