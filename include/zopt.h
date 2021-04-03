@@ -5,20 +5,20 @@ typedef enum ZOPT_KIND {
 } ZOPT_KIND;
 
 typedef struct ZOPT_DEF {
-    const char *name;
+    char *name;
     ZOPT_KIND kind;
 } ZOPT_DEF;
 
 typedef struct ZOPT_VAL {
-    const char *name;
+    char *name;
     ZOPT_KIND kind;
-    const char *value;
+    char *value;
 } ZOPT_VAL;
 
 typedef struct ZOPT_OPTS {
     ZOPT_VAL *opts;
     int count;
-    const char **args;
+    char **args;
     int args_count;
 } ZOPT_OPTS;
 
@@ -32,7 +32,7 @@ typedef struct ZOPT_OPTS {
  * 
  * Returns an options container; see ZOPT_OPTS above.
  */
-ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count);
+ZOPT_OPTS zopt_parse(int argc, char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count);
 
 /*
  * Get a specified option.
@@ -42,7 +42,7 @@ ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_
  * 
  * Returns a pointer to the specified option.
  */
-const ZOPT_VAL *zopt_get(ZOPT_OPTS opts, const char *name);
+ZOPT_VAL *zopt_get(ZOPT_OPTS opts, char *name);
 
 /*
  * Get the value a specified string option.
@@ -52,7 +52,7 @@ const ZOPT_VAL *zopt_get(ZOPT_OPTS opts, const char *name);
  * 
  * Returns a pointer to the string value of the specified option.
  */
-const char *zopt_get_str(ZOPT_OPTS opts, const char *name);
+char *zopt_get_str(ZOPT_OPTS opts, char *name);
 
 /*
  * Get the value of a specified boolean option.
@@ -63,4 +63,4 @@ const char *zopt_get_str(ZOPT_OPTS opts, const char *name);
  * 
  * Returns the boolean value of the specified option, or default_val if it is not present.
  */
-char zopt_get_bool(ZOPT_OPTS opts, const char *name, char default_val);
+char zopt_get_bool(ZOPT_OPTS opts, char *name, char default_val);

@@ -11,7 +11,7 @@ typedef char BOOL;
 #define DUMP_STR(name)  printf("%s = \"%s\"\n", #name, name)
 #define DUMP_INT(name)  printf("%s = %d\n", #name, name)
 
-ZOPT_VAL *_add_opt(ZOPT_VAL opts[], int opts_count, ZOPT_DEF *def, const char *value) {
+ZOPT_VAL *_add_opt(ZOPT_VAL opts[], int opts_count, ZOPT_DEF *def, char *value) {
     opts = (ZOPT_VAL *)realloc(opts, (opts_count+1) * sizeof(ZOPT_VAL));
     opts[opts_count].name = def->name;
     opts[opts_count].kind = def->kind;
@@ -19,7 +19,7 @@ ZOPT_VAL *_add_opt(ZOPT_VAL opts[], int opts_count, ZOPT_DEF *def, const char *v
     return opts;
 }
 
-ZOPT_DEF *_find_def(ZOPT_DEF opt_defs[], int opt_defs_count, const char *name) {
+ZOPT_DEF *_find_def(ZOPT_DEF opt_defs[], int opt_defs_count, char *name) {
     for (int i = 0; i < opt_defs_count; ++i) {
         if (!strcmp(opt_defs[i].name, name)) {
             return &opt_defs[i];
@@ -28,7 +28,7 @@ ZOPT_DEF *_find_def(ZOPT_DEF opt_defs[], int opt_defs_count, const char *name) {
     return 0;
 }
 
-void _handle_opt(ZOPT_OPTS *result, const char *value, ZOPT_DEF opt_defs[], int opt_defs_count, const char *cur_opt_name, BOOL *is_waiting_for_val, ZOPT_DEF **cur_def) {
+void _handle_opt(ZOPT_OPTS *result, char *value, ZOPT_DEF opt_defs[], int opt_defs_count, char *cur_opt_name, BOOL *is_waiting_for_val, ZOPT_DEF **cur_def) {
     *cur_def = _find_def(opt_defs, opt_defs_count, cur_opt_name);
     if (!*cur_def) {
         fprintf(stderr, "Unknown option '%s'\n", cur_opt_name);
@@ -49,7 +49,7 @@ void _handle_opt(ZOPT_OPTS *result, const char *value, ZOPT_DEF opt_defs[], int 
     }
 }
 
-ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count) {
+ZOPT_OPTS zopt_parse(int argc, char *argv[], ZOPT_DEF opt_defs[], int opt_defs_count) {
     ZOPT_OPTS result;
     result.opts = NULL;
     result.count = 0;
@@ -68,12 +68,12 @@ ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_
         int len;
         if (argv[i][0] != '-' || (len = strlen(argv[i])) < 2) {
             ++result.args_count;
-            result.args = (const char **)realloc(result.args, result.args_count * sizeof(const char *));
+            result.args = (char **)realloc(result.args, result.args_count * sizeof(char *));
             result.args[result.args_count - 1] = argv[i];
             continue;
         }
 
-        const char *cur_opt_name;
+        char *cur_opt_name;
         BOOL is_long_opt = argv[i][1] == '-'; // whole thing starts with '--'
         if (is_long_opt) {
             cur_opt_name = &argv[i][2];
@@ -103,9 +103,9 @@ ZOPT_OPTS zopt_parse(int argc, const char *argv[], ZOPT_DEF opt_defs[], int opt_
     return result;
 }
 
-const ZOPT_VAL *zopt_get(ZOPT_OPTS opts, const char *name) {
+ZOPT_VAL *zopt_get(ZOPT_OPTS opts, char *name) {
     for (int i = 0; i < opts.count; ++i) {
-        const ZOPT_VAL *opt = &opts.opts[i];
+        ZOPT_VAL *opt = &opts.opts[i];
         if (!strcmp(opt->name, name)) {
             return opt;
         }
@@ -113,14 +113,14 @@ const ZOPT_VAL *zopt_get(ZOPT_OPTS opts, const char *name) {
     return NULL;
 }
 
-const char *zopt_get_str(ZOPT_OPTS opts, const char *name) {
-    const ZOPT_VAL *opt = zopt_get(opts, name);
+char *zopt_get_str(ZOPT_OPTS opts, char *name) {
+    ZOPT_VAL *opt = zopt_get(opts, name);
     if (opt) return opt->value;
     else return NULL;
 }
 
-char zopt_get_bool(ZOPT_OPTS opts, const char *name, char default_val) {
-    const ZOPT_VAL *opt = zopt_get(opts, name);
+char zopt_get_bool(ZOPT_OPTS opts, char *name, char default_val) {
+    ZOPT_VAL *opt = zopt_get(opts, name);
     if (opt) return TRUE;
     else return default_val;
 }
